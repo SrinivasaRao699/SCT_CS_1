@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Caesar Cipher Encrypt & Decrypt</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+  body {
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+  }
+  .container {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 15px;
+    padding: 30px 40px;
+    max-width: 500px;
+    width: 100%;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+  }
+  h1 {
+    text-align: center;
+    font-weight: 600;
+    margin-bottom: 25px;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+  }
+  label {
+    display: block;
+    margin-top: 20px;
+    font-weight: 600;
+  }
+  input[type="text"], input[type="number"] {
+    width: 100%;
+    padding: 10px 12px;
+    margin-top: 8px;
+    border-radius: 8px;
+    border: none;
+    font-size: 1rem;
+    outline: none;
+  }
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 25px;
+  }
+  button {
+    flex: 1;
+    padding: 12px 0;
+    font-weight: 600;
+    font-size: 1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin: 0 5px;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  button:first-child {
+    margin-left: 0;
+  }
+  button:last-child {
+    margin-right: 0;
+  }
+  button.encrypt {
+    background-color: #36d1dc;
+    color: #004e5a;
+  }
+  button.encrypt:hover {
+    background-color: #2bb6bb;
+  }
+  button.decrypt {
+    background-color: #fbc531;
+    color: #5a462b;
+  }
+  button.decrypt:hover {
+    background-color: #d4ac13;
+  }
+  .output {
+    margin-top: 30px;
+    background: rgba(255,255,255,0.3);
+    padding: 15px 20px;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    min-height: 60px;
+    word-wrap: break-word;
+    user-select: all;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+  }
+  .footer {
+    margin-top: 25px;
+    text-align: center;
+    font-size: 0.9rem;
+    opacity: 0.7;
+  }
+</style>
+</head>
+<body>
+  <div class="container" role="main">
+    <h1>Caesar Cipher Tool</h1>
+    <label for="messageInput">Enter your message:</label>
+    <input type="text" id="messageInput" placeholder="Type message here..." aria-label="Message input" />
+
+    <label for="shiftInput">Enter shift value (integer):</label>
+    <input type="number" id="shiftInput" value="3" aria-label="Shift value input" />
+
+    <div class="buttons">
+      <button class="encrypt" id="encryptBtn" aria-label="Encrypt message button">Encrypt</button>
+      <button class="decrypt" id="decryptBtn" aria-label="Decrypt message button">Decrypt</button>
+    </div>
+
+    <div class="output" id="output" aria-live="polite" aria-atomic="true" role="region" tabindex="0">Output will be displayed here.</div>
+
+    <div class="footer">© 2024 Caesar Cipher Encryption Tool</div>
+  </div>
+
+  <script>
+    // Caesar cipher encryption/decryption logic
+    function caesarCipher(text, shift, encrypt = true) {
+      if (!Number.isInteger(shift)) {
+        return 'Shift value must be an integer.';
+      }
+      if (!encrypt) {
+        shift = -shift;
+      }
+      const aCodeUpper = 'A'.charCodeAt(0);
+      const zCodeUpper = 'Z'.charCodeAt(0);
+      const aCodeLower = 'a'.charCodeAt(0);
+      const zCodeLower = 'z'.charCodeAt(0);
+      let result = '';
+
+      for (let char of text) {
+        const code = char.charCodeAt(0);
+
+        if (code >= aCodeUpper && code <= zCodeUpper) {
+          // Uppercase letter
+          let shiftedCode = ((code - aCodeUpper + shift) % 26);
+          if (shiftedCode < 0) shiftedCode += 26;
+          result += String.fromCharCode(aCodeUpper + shiftedCode);
+        } else if (code >= aCodeLower && code <= zCodeLower) {
+          // Lowercase letter
+          let shiftedCode = ((code - aCodeLower + shift) % 26);
+          if (shiftedCode < 0) shiftedCode += 26;
+          result += String.fromCharCode(aCodeLower + shiftedCode);
+        } else {
+          // Non-alphabetical character does not change
+          result += char;
+        }
+      }
+      return result;
+    }
+
+    // DOM elements
+    const messageInput = document.getElementById('messageInput');
+    const shiftInput = document.getElementById('shiftInput');
+    const encryptBtn = document.getElementById('encryptBtn');
+    const decryptBtn = document.getElementById('decryptBtn');
+    const output = document.getElementById('output');
+
+    // Event handlers
+    encryptBtn.addEventListener('click', () => {
+      const message = messageInput.value;
+      const shift = parseInt(shiftInput.value, 10);
+      if (isNaN(shift)) {
+        output.textContent = 'Please enter a valid integer for shift value.';
+        return;
+      }
+      const encrypted = caesarCipher(message, shift, true);
+      output.textContent = encrypted;
+      output.focus();
+    });
+
+    decryptBtn.addEventListener('click', () => {
+      const message = messageInput.value;
+      const shift = parseInt(shiftInput.value, 10);
+      if (isNaN(shift)) {
+        output.textContent = 'Please enter a valid integer for shift value.';
+        return;
+      }
+      const decrypted = caesarCipher(message, shift, false);
+      output.textContent = decrypted;
+      output.focus();
+    });
+  </script>
+</body>
+</html>
+
